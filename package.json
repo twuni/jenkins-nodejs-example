@@ -1,0 +1,37 @@
+{
+  "name": "@twuni/jenkins-nodejs-example",
+  "version": "0.1.0",
+  "description": "Example Node.js app with Jenkinsfile.",
+  "main": "index.js",
+  "repository": "https://github.com/twuni/jenkins-nodejs-example",
+  "author": {
+    "email": "devin@canterberry.cc",
+    "name": "Devin Canterberry"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "rm -vfR lib && babel --only '**/index.js' --no-comments --compact true --minified --source-maps false --out-dir lib src; cp -vfR package.json yarn.lock README.md LICENSE.md lib/",
+    "documentation": "rm -fR docs; (cd src; find . -type f -name index.js | xargs jsdoc --destination ../docs --package ../package.json --readme ../README.md)",
+    "lint": "eslint src",
+    "test": "find src -type f -name spec.js | xargs nyc --silent --check-coverage --lines 100 --per-file mocha --require @babel/register src/spec.setup.js"
+  },
+  "devDependencies": {
+    "@babel/cli": "7.6.2",
+    "@babel/core": "7.6.2",
+    "@babel/preset-env": "7.6.2",
+    "@babel/register": "7.6.2",
+    "babel-eslint": "10.0.3",
+    "chai": "4.2.0",
+    "chai-as-promised": "7.1.1",
+    "eslint": "6.4.0",
+    "eslint-plugin-ante": "1.0.3",
+    "jsdoc": "3.6.3",
+    "mocha": "6.2.2",
+    "nyc": "14.1.1",
+    "sinon": "7.5.0",
+    "sinon-chai": "3.3.0"
+  },
+  "dependencies": {
+    "regenerator-runtime": "0.13.3"
+  }
+}
