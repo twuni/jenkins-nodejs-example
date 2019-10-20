@@ -1,18 +1,18 @@
 pipeline {
-  agent none
+  agent {
+    docker {
+      image 'twuni/nodejs:12.12.0'
+    }
+  }
 
   stages {
     stage('initialize') {
-      agent any
-
       steps {
         checkout scm
       }
     }
 
     stage('install') {
-      agent any
-
       steps {
         sh 'yarn install --frozen-lockfile'
         stash includes: 'node_modules', name: 'dependencies'
@@ -21,8 +21,6 @@ pipeline {
 
     parallel {
       stage('build') {
-        agent any
-
         environment {
           NODE_ENV = 'production'
         }
@@ -34,8 +32,6 @@ pipeline {
       }
 
       stage('lint') {
-        agent any
-
         steps {
           unstash 'dependencies'
           sh 'yarn --silent lint --format junit --output-file eslint.xml'
@@ -49,8 +45,6 @@ pipeline {
       }
 
       stage('test') {
-        agent any
-
         steps {
           unstash 'dependencies'
           sh 'yarn --silent test --reporter xunit > junit.xml'
@@ -64,15 +58,13 @@ pipeline {
       }
 
       stage('documentation') {
-        agent any
-
         steps {
           unstash 'dependencies'
           sh 'yarn --silent documentation'
         }
 
         post {
-          always {
+          success {
             archiveArtifacts artifacts: 'docs', fingerprint: true
           }
         }
@@ -80,8 +72,6 @@ pipeline {
     }
 
     stage('publish') {
-      agent any
-
       environment {
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_REGION = credentials('AWS_REGION')
