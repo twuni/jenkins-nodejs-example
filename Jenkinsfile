@@ -19,53 +19,55 @@ pipeline {
       }
     }
 
-    parallel {
-      stage('build') {
-        environment {
-          NODE_ENV = 'production'
-        }
+    stage('parallel') {
+      parallel {
+        stage('build') {
+          environment {
+            NODE_ENV = 'production'
+          }
 
-        steps {
-          unstash 'dependencies'
-          sh 'yarn build'
-        }
-      }
-
-      stage('lint') {
-        steps {
-          unstash 'dependencies'
-          sh 'yarn --silent lint --format junit --output-file eslint.xml'
-        }
-
-        post {
-          always {
-            junit 'eslint.xml'
+          steps {
+            unstash 'dependencies'
+            sh 'yarn build'
           }
         }
-      }
 
-      stage('test') {
-        steps {
-          unstash 'dependencies'
-          sh 'yarn --silent test --reporter xunit > junit.xml'
-        }
+        stage('lint') {
+          steps {
+            unstash 'dependencies'
+            sh 'yarn --silent lint --format junit --output-file eslint.xml'
+          }
 
-        post {
-          always {
-            junit 'junit.xml'
+          post {
+            always {
+              junit 'eslint.xml'
+            }
           }
         }
-      }
 
-      stage('documentation') {
-        steps {
-          unstash 'dependencies'
-          sh 'yarn --silent documentation'
+        stage('test') {
+          steps {
+            unstash 'dependencies'
+            sh 'yarn --silent test --reporter xunit > junit.xml'
+          }
+
+          post {
+            always {
+              junit 'junit.xml'
+            }
+          }
         }
 
-        post {
-          success {
-            archiveArtifacts artifacts: 'docs', fingerprint: true
+        stage('documentation') {
+          steps {
+            unstash 'dependencies'
+            sh 'yarn --silent documentation'
+          }
+
+          post {
+            success {
+              archiveArtifacts artifacts: 'docs', fingerprint: true
+            }
           }
         }
       }
